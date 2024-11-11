@@ -1,0 +1,18 @@
+[
+  {
+    "modid": "ethylene",
+    "name": "Ethylene",
+    "description": "Load Bukkit/Spigot plugins in Forge",
+    "version": "${modVersion}",
+    "mcversion": "${minecraftVersion}",
+    "url": "https://github.com/TonimatasDEV/Ethylene",
+    "updateJSON": "https://api.modrinth.com/updates/ethylene/forge_updates.json",
+    "authorList": [
+      "TonimatasDEV"
+    ],
+    "credits": "",
+    "logoFile": "icon.png",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
