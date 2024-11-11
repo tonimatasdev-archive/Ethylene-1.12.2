@@ -32,7 +32,14 @@ repositories {
 }
 
 dependencies {
-    //minecraft("net.minecraftforge:forge:$minecraftVersion-$forgeVersion")
+    // Bukkit Libs
+    implementation("commons-lang:commons-lang:2.6")
+    implementation("com.googlecode.json-simple:json-simple:1.1.1")
+    
+    implementation("org.yaml:snakeyaml:1.19")
+    
+    // CraftBukkit
+    implementation("jline:jline:2.12.1")
     
     val mixin = modUtils.enableMixins("zone.rong:mixinbooter:10.1", "ethylene.mixins.refmap.json") as String
     
