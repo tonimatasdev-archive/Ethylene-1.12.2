@@ -1,30 +1,22 @@
-package org.bukkit.craftbukkit.inventory;
+package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-
-import net.minecraft.server.IHopper;
-import net.minecraft.server.IInventory;
-import net.minecraft.server.InventoryCrafting;
-import net.minecraft.server.InventoryEnderChest;
-import net.minecraft.server.InventoryMerchant;
-import net.minecraft.server.PlayerInventory;
-import net.minecraft.server.TileEntityBeacon;
-import net.minecraft.server.TileEntityBrewingStand;
-import net.minecraft.server.TileEntityDispenser;
-import net.minecraft.server.TileEntityDropper;
-import net.minecraft.server.TileEntityFurnace;
-import net.minecraft.server.TileEntityShulkerBox;
-
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.inventory.InventoryEnderChest;
+import net.minecraft.inventory.InventoryMerchant;
+import net.minecraft.tileentity.*;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.Material;
 
 public class CraftInventory implements Inventory {
     protected final IInventory inventory;
@@ -38,7 +30,7 @@ public class CraftInventory implements Inventory {
     }
 
     public int getSize() {
-        return getInventory().getSize();
+        return getInventory().getSizeInventory();
     }
 
     public String getName() {
@@ -46,16 +38,16 @@ public class CraftInventory implements Inventory {
     }
 
     public ItemStack getItem(int index) {
-        net.minecraft.server.ItemStack item = getInventory().getItem(index);
+        net.minecraft.item.ItemStack item = getInventory().getStackInSlot(index);
         return item.isEmpty() ? null : CraftItemStack.asCraftMirror(item);
     }
 
-    protected ItemStack[] asCraftMirror(List<net.minecraft.server.ItemStack> mcItems) {
+    protected ItemStack[] asCraftMirror(List<net.minecraft.item.ItemStack> mcItems) {
         int size = mcItems.size();
         ItemStack[] items = new ItemStack[size];
 
         for (int i = 0; i < size; i++) {
-            net.minecraft.server.ItemStack mcItem = mcItems.get(i);
+            net.minecraft.item.ItemStack mcItem = mcItems.get(i);
             items[i] = (mcItem.isEmpty()) ? null : CraftItemStack.asCraftMirror(mcItem);
         }
 
@@ -73,7 +65,7 @@ public class CraftInventory implements Inventory {
     }
 
     public ItemStack[] getContents() {
-        List<net.minecraft.server.ItemStack> mcItems = getInventory().getContents();
+        List<net.minecraft.item.ItemStack> mcItems = getInventory().getContents();
 
         return asCraftMirror(mcItems);
     }
@@ -93,7 +85,7 @@ public class CraftInventory implements Inventory {
     }
 
     public void setItem(int index, ItemStack item) {
-        getInventory().setItem(index, CraftItemStack.asNMSCopy(item));
+        getInventory().setInventorySlotContents(index, CraftItemStack.asNMSCopy(item));
     }
 
     public boolean contains(int materialId) {
@@ -387,7 +379,7 @@ public class CraftInventory implements Inventory {
     }
 
     private int getMaxItemStack() {
-        return getInventory().getMaxStackSize();
+        return getInventory().getInventoryStackLimit();
     }
 
     public void remove(int materialId) {
@@ -445,8 +437,8 @@ public class CraftInventory implements Inventory {
     public InventoryType getType() {
         // Thanks to Droppers extending Dispensers, order is important.
         if (inventory instanceof InventoryCrafting) {
-            return inventory.getSize() >= 9 ? InventoryType.WORKBENCH : InventoryType.CRAFTING;
-        } else if (inventory instanceof PlayerInventory) {
+            return inventory.getSizeInventory() >= 9 ? InventoryType.WORKBENCH : InventoryType.CRAFTING;
+        } else if (inventory instanceof InventoryPlayer) {
             return InventoryType.PLAYER;
         } else if (inventory instanceof TileEntityDropper) {
             return InventoryType.DROPPER;
@@ -482,7 +474,7 @@ public class CraftInventory implements Inventory {
     }
 
     public int getMaxStackSize() {
-        return inventory.getMaxStackSize();
+        return inventory.getInventoryStackLimit();
     }
 
     public void setMaxStackSize(int size) {

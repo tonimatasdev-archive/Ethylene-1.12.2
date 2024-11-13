@@ -1,11 +1,11 @@
-package org.bukkit.craftbukkit.block;
+package org.bukkit.craftbukkit.v1_12_R1.block;
 
-import net.minecraft.server.BlockPosition;
-import net.minecraft.server.NBTTagCompound;
-import net.minecraft.server.TileEntity;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 
 public class CraftBlockEntityState<T extends TileEntity> extends CraftBlockState {
 
@@ -43,7 +43,7 @@ public class CraftBlockEntityState<T extends TileEntity> extends CraftBlockState
             return null;
         }
 
-        NBTTagCompound nbtTagCompound = tileEntity.save(new NBTTagCompound());
+        NBTTagCompound nbtTagCompound = tileEntity.writeToNBT(new NBTTagCompound());
         T snapshot = (T) TileEntity.create(null, nbtTagCompound);
 
         return snapshot;
@@ -51,12 +51,12 @@ public class CraftBlockEntityState<T extends TileEntity> extends CraftBlockState
 
     // copies the TileEntity-specific data, retains the position
     private void copyData(T from, T to) {
-        BlockPosition pos = to.getPosition();
-        NBTTagCompound nbtTagCompound = from.save(new NBTTagCompound());
-        to.load(nbtTagCompound);
+        BlockPos pos = to.getPos();
+        NBTTagCompound nbtTagCompound = from.writeToNBT(new NBTTagCompound());
+        to.readFromNBT(nbtTagCompound);
 
         // reset the original position:
-        to.setPosition(pos);
+        to.setPos(pos);
     }
 
     // gets the wrapped TileEntity
@@ -81,7 +81,7 @@ public class CraftBlockEntityState<T extends TileEntity> extends CraftBlockState
         // update snapshot
         applyTo(snapshot);
 
-        return snapshot.save(new NBTTagCompound());
+        return snapshot.writeToNBT(new NBTTagCompound());
     }
 
     // copies the data of the given tile entity to this block state
@@ -111,7 +111,7 @@ public class CraftBlockEntityState<T extends TileEntity> extends CraftBlockState
 
             if (isApplicable(tile)) {
                 applyTo(tileEntityClass.cast(tile));
-                tile.update();
+                tile.markDirty();
             }
         }
 

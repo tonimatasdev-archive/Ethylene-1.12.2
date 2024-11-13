@@ -1,13 +1,13 @@
-package org.bukkit.craftbukkit.chunkio;
+package org.bukkit.craftbukkit.v1_12_R1.chunkio;
 
 import java.io.IOException;
-import net.minecraft.server.Chunk;
-import net.minecraft.server.ChunkCoordIntPair;
-import net.minecraft.server.ChunkRegionLoader;
-import net.minecraft.server.NBTTagCompound;
 
-import org.bukkit.Server;
-import org.bukkit.craftbukkit.util.AsynchronousExecutor;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.storage.AnvilChunkLoader;
+
+import org.bukkit.craftbukkit.v1_12_R1.util.AsynchronousExecutor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,9 +17,9 @@ class ChunkIOProvider implements AsynchronousExecutor.CallBackProvider<QueuedChu
     // async stuff
     public Chunk callStage1(QueuedChunk queuedChunk) throws RuntimeException {
         try {
-            ChunkRegionLoader loader = queuedChunk.loader;
-            Object[] data = loader.loadChunk(queuedChunk.world, queuedChunk.x, queuedChunk.z);
-            
+            AnvilChunkLoader loader = queuedChunk.loader;
+            Object[] data = loader.loadChunk__Async(queuedChunk.world, queuedChunk.x, queuedChunk.z);
+
             if (data != null) {
                 queuedChunk.compound = (NBTTagCompound) data[1];
                 return (Chunk) data[0];
@@ -35,20 +35,20 @@ class ChunkIOProvider implements AsynchronousExecutor.CallBackProvider<QueuedChu
     public void callStage2(QueuedChunk queuedChunk, Chunk chunk) throws RuntimeException {
         if (chunk == null) {
             // If the chunk loading failed just do it synchronously (may generate)
-            queuedChunk.provider.originalGetChunkAt(queuedChunk.x, queuedChunk.z);
+            queuedChunk.provider.provideChunk(queuedChunk.x, queuedChunk.z);
             return;
         }
 
-        queuedChunk.loader.loadEntities(chunk, queuedChunk.compound.getCompound("Level"), queuedChunk.world);
-        chunk.setLastSaved(queuedChunk.provider.world.getTime());
-        queuedChunk.provider.chunks.put(ChunkCoordIntPair.a(queuedChunk.x, queuedChunk.z), chunk);
-        chunk.addEntities();
+        queuedChunk.loader.loadEntities(queuedChunk.world, queuedChunk.compound.getCompoundTag("Level"), chunk);
+        chunk.setLastSaveTime(queuedChunk.provider.world.getTotalWorldTime());
+        queuedChunk.provider.id2ChunkMap.put(ChunkPos.asLong(queuedChunk.x, queuedChunk.z), chunk);
+        chunk.onLoad();
 
         if (queuedChunk.provider.chunkGenerator != null) {
             queuedChunk.provider.chunkGenerator.recreateStructures(chunk, queuedChunk.x, queuedChunk.z);
         }
 
-        chunk.loadNearby(queuedChunk.provider, queuedChunk.provider.chunkGenerator, false);
+        chunk.populate(queuedChunk.provider, queuedChunk.provider.chunkGenerator, false);
     }
 
     public void callStage3(QueuedChunk queuedChunk, Chunk chunk, Runnable runnable) throws RuntimeException {

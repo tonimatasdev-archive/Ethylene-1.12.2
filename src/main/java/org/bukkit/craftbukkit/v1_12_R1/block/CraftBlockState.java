@@ -1,22 +1,22 @@
-package org.bukkit.craftbukkit.block;
+package org.bukkit.craftbukkit.v1_12_R1.block;
 
-import net.minecraft.server.BlockPosition;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.math.BlockPos;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.CraftChunk;
-import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_12_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.material.Attachable;
 import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
-import net.minecraft.server.IBlockData;
 
 public class CraftBlockState implements BlockState {
     private final CraftWorld world;
@@ -40,7 +40,7 @@ public class CraftBlockState implements BlockState {
         createData(block.getData());
     }
 
-    public CraftBlockState(final Block block, int flag) {
+	public CraftBlockState(final Block block, int flag) {
         this(block);
         this.flag = flag;
     }
@@ -56,7 +56,7 @@ public class CraftBlockState implements BlockState {
         return new CraftBlockState(world.getWorld().getBlockAt(x, y, z));
     }
 
-    public static CraftBlockState getBlockState(net.minecraft.server.World world, int x, int y, int z, int flag) {
+    public static CraftBlockState getBlockState(net.minecraft.world.World world, int x, int y, int z, int flag) {
         return new CraftBlockState(world.getWorld().getBlockAt(x, y, z), flag);
     }
 
@@ -115,7 +115,7 @@ public class CraftBlockState implements BlockState {
     }
 
     public Material getType() {
-        return Material.getMaterial(getTypeId());
+        return Material.getBlockMaterial(getTypeId());
     }
 
     public void setFlag(int flag) {
@@ -159,19 +159,19 @@ public class CraftBlockState implements BlockState {
             }
         }
 
-        BlockPosition pos = new BlockPosition(x, y, z);
-        IBlockData newBlock = CraftMagicNumbers.getBlock(getType()).fromLegacyData(getRawData());
+        BlockPos pos = new BlockPos(x, y, z);
+        IBlockState newBlock = CraftMagicNumbers.getBlock(getType()).getStateFromMeta(this.getRawData());
         block.setTypeIdAndData(getTypeId(), getRawData(), applyPhysics);
-        world.getHandle().notify(
+        world.getHandle().notifyBlockUpdate(
                 pos,
-                CraftMagicNumbers.getBlock(block).fromLegacyData(block.getData()),
+                CraftMagicNumbers.getBlock(block).getStateFromMeta(block.getData()),
                 newBlock,
                 3
         );
 
         // Update levers etc
         if (applyPhysics && getData() instanceof Attachable) {
-            world.getHandle().applyPhysics(pos.shift(CraftBlock.blockFaceToNotch(((Attachable) getData()).getAttachedFace())), newBlock.getBlock(), false);
+            world.getHandle().notifyNeighborsOfStateChange(pos.offset(CraftBlock.blockFaceToNotch(((Attachable) getData()).getAttachedFace())), newBlock.getBlock(), false);
         }
 
         return true;
