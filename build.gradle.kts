@@ -25,6 +25,10 @@ minecraft {
     useDependencyAccessTransformers.set(true)
 }
 
+tasks.deobfuscateMergedJarToSrg.configure {
+    accessTransformerFiles.from("src/main/resources/META-INF/ethylene.cfg")
+}
+
 sourceSets.main.get().resources { srcDir("src/generated/resources") }
 
 repositories {
