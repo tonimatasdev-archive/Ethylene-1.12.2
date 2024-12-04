@@ -2,6 +2,7 @@ package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
 import java.util.Iterator;
 
+import dev.tonimatas.ethylene.interfaces.server.EthyleneIRecipe;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.item.crafting.IRecipe;
@@ -26,7 +27,7 @@ public class RecipeIterator implements Iterator<Recipe> {
     public Recipe next() {
         if (recipes.hasNext()) {
             removeFrom = recipes;
-            return recipes.next().toBukkitRecipe();
+            return ((EthyleneIRecipe) recipes.next()).toBukkitRecipe();
         } else {
             net.minecraft.item.ItemStack item;
             if (smeltingCustom.hasNext()) {

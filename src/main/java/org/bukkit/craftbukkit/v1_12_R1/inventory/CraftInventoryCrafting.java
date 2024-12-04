@@ -3,6 +3,7 @@ package org.bukkit.craftbukkit.v1_12_R1.inventory;
 import java.util.Arrays;
 import java.util.List;
 
+import dev.tonimatas.ethylene.interfaces.server.EthyleneIRecipe;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.crafting.IRecipe;
@@ -115,7 +116,7 @@ public class CraftInventoryCrafting extends CraftInventory implements CraftingIn
     }
 
     public Recipe getRecipe() {
-        IRecipe recipe = ((InventoryCrafting)getInventory()).currentRecipe;
-        return recipe == null ? null : recipe.toBukkitRecipe();
+        IRecipe recipe = ((EthyleneIRecipe) ((InventoryCrafting)getInventory())).currentRecipe;
+        return recipe == null ? null : ((EthyleneIRecipe) recipe).toBukkitRecipe();
     }
 }

@@ -1,6 +1,7 @@
 package org.bukkit.craftbukkit.v1_12_R1;
 
 import com.google.common.base.Preconditions;
+import dev.tonimatas.ethylene.interfaces.server.EthyleneIDataManager;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityAreaEffectCloud;
@@ -487,7 +488,7 @@ public class CraftWorld implements World {
     }
 
     public UUID getUID() {
-        return world.getSaveHandler().getUUID();
+        return ((EthyleneIDataManager) world.getSaveHandler()).getUUID();
     }
 
     @Override
